@@ -30,10 +30,11 @@ const velo = 200;
 let bird = null;
 let toolDelta = null;
 let flapVelo = 250;
+const initialBirdPosition = {x: config.width / 7.5, y: config.height / 2}
 
 function create () {
   this.add.image(400, 300, "sky");
-  bird = this.physics.add.sprite(config.width /20, 300, 'bird').setOrigin(0); 
+  bird = this.physics.add.sprite(initialBirdPosition.x, initialBirdPosition.y, 'bird').setOrigin(0); 
   //bird.body.velocity.x = velo;
 
   this.input.on('pointerdown', flap);
@@ -48,9 +49,10 @@ function create () {
 
   /* If Bird y position is smaller than 0 or greater than height of the canvas
      Then ALERt: "You lost" */
-function update(time, delta){
-  if(bird.y >= config.height || bird.y <= 0){
-    alert("You lost! Try Again");
+function update(time, delta){  // "- bird.height" doesn´t work
+  if(bird.y >= config.height || bird.y <= 0 - bird.height){
+     alert("You lost! Try Again");
+    restart();
   }
 
   // if(bird.x >= config.width) { 
@@ -60,6 +62,12 @@ function update(time, delta){
   // }
 }
  
+function restart(){
+  bird.x = initialBirdPosition.x;
+  bird.y = initialBirdPosition.y;
+  bird.body.velocity.y = 0;
+}
+
 function again(){
  return;
 }
