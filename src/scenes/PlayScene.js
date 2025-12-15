@@ -8,6 +8,9 @@ class PlayScene extends Phaser.Scene {
         this.pipePairs = [];
         this.flapVelo = 250;
         this.velo = 200;
+
+        this.score = 0;
+        this.scoreText = "";
     }
 
 
@@ -21,13 +24,14 @@ class PlayScene extends Phaser.Scene {
         this.createSky();
         this.createBird();
         this.createPipes();
+        this.createColliders();
+        this.createScore();
         this.handleInputs();
     }
 
     update() {
         this.pipesUpdate();
         this.birdStatus();
-        this.createColliders();
     }
 
     createSky() {
@@ -39,23 +43,23 @@ class PlayScene extends Phaser.Scene {
 
     createBird() {
         //Bird Initial Position
-        const birdX = this.scale.width / 7.5;
+        const birdX = this.scale.width / 20;
         const birdY = this.scale.height / 2;
         this.bird = this.physics.add.sprite(birdX, birdY, 'bird').setOrigin(0);
         this.bird.body.gravity.y = 400;
         this.bird.setCollideWorldBounds(true);
     }
 
-    createPipes() {
-        //Pipes
+    createPipes() {            // Pipes Generation needs fixation on distance an gap
+        //Pipes               
         this.pipesGroup = this.physics.add.group();
         let distanceX = 0;
         for (let i = 1; i <= 4; i++) {
             // Pipes Horizontal Distance
-            distanceX = i * Phaser.Math.Between(300, 400);
+            distanceX = i * Phaser.Math.Between(450, 500);
             // Pipes Vertical Positions
             let upperPipeY = Phaser.Math.Between(100, 400);
-            let lowerPipeY = Phaser.Math.Between(70, 200);
+            let lowerPipeY = Phaser.Math.Between(120, 200);
             // Spawn Pipes
             let upperPipe = this.pipesGroup.create(distanceX, upperPipeY, 'pipe')
                 .setImmovable(true)
@@ -70,8 +74,6 @@ class PlayScene extends Phaser.Scene {
             };
             this.pipePairs.push(pair);
             this.pipePairs.gravity = false;
-            console.log(this.pipePairs[0].uPipe);
-            console.log(this.bird);
         }
         // Move all Pipes at once
         this.pipesGroup.setVelocityX(-this.velo);
@@ -98,6 +100,8 @@ class PlayScene extends Phaser.Scene {
                 pair.uPipe.y = newY;
                 pair.lPipe.x = newX;
                 pair.lPipe.y = newY + gap;
+                this.increaseScore();
+
             }
         })
     }
@@ -110,17 +114,30 @@ class PlayScene extends Phaser.Scene {
     }
 
     birdRestart() {
-        const birdX = this.scale.width / 7.5;
-        const birdY = this.scale.height / 2;
-        this.bird.setPosition(birdX, birdY);
-        this.bird.body.velocity.y = 0;
-        this.bird.body.velocity.x = 0;
-        // this.physics.pause();
+        this.physics.pause();
+
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.score = 0;
+                this.scene.restart();
+            },
+            loop: false
+        })
     }
 
     flap() {
         debugger
         this.bird.body.velocity.y = -this.flapVelo;
+    }
+
+    createScore() {
+        this.scoreText = this.add.text(15, 15, 'Score: ' + this.score);
+    }
+
+    increaseScore() {
+        this.score += 1;
+        this.scoreText.setText('Score: ' + this.score);
     }
 }
 
