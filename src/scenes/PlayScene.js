@@ -13,12 +13,11 @@ class PlayScene extends Phaser.Scene {
         this.scoreText = "";
     }
 
-
-    preload() {
-        this.load.image('sky', 'assets/sky.png');
-        this.load.image('bird', 'assets/bird.png');
-        this.load.image('pipe', 'assets/pipe.png');
-    }
+    // preload() {
+    //     this.load.image('sky', 'assets/sky.png');
+    //     this.load.image('bird', 'assets/bird.png');
+    //     this.load.image('pipe', 'assets/pipe.png');
+    // }
 
     create() {
         this.createSky();
@@ -59,7 +58,7 @@ class PlayScene extends Phaser.Scene {
             distanceX = i * Phaser.Math.Between(450, 500);
             // Pipes Vertical Positions
             let upperPipeY = Phaser.Math.Between(100, 400);
-            let lowerPipeY = Phaser.Math.Between(120, 200);
+            let lowerPipeY = Phaser.Math.Between(120, 180);
             // Spawn Pipes
             let upperPipe = this.pipesGroup.create(distanceX, upperPipeY, 'pipe')
                 .setImmovable(true)
