@@ -6,13 +6,14 @@ class PreloadScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image('background', 'assets/bg.png');
         this.load.image('sky', 'assets/sky.png');
         this.load.image('bird', 'assets/bird.png');
         this.load.image('pipe', 'assets/pipe.png');
     }
 
     create() {
-        this.scene.start('PlayScene');
+        this.scene.start('MenuScene');
     }
 }
 

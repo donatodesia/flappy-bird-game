@@ -13,12 +13,6 @@ class PlayScene extends Phaser.Scene {
         this.scoreText = "";
     }
 
-    // preload() {
-    //     this.load.image('sky', 'assets/sky.png');
-    //     this.load.image('bird', 'assets/bird.png');
-    //     this.load.image('pipe', 'assets/pipe.png');
-    // }
-
     create() {
         this.createSky();
         this.createBird();
@@ -35,14 +29,13 @@ class PlayScene extends Phaser.Scene {
 
     createSky() {
         //Sky
-        this.add.image(400, 300, "sky");
-        // this.add.image(this.scale.width / 2, this.scale.height / 2, 'sky')
-        //     .setDisplaySize(this.scale.width, this.scale.height);  // Scale sky on whole Screen
+        this.add.image(this.scale.width * 0.5, this.scale.height * 0.5, "sky")
+            .setDisplaySize(this.scale.width, this.scale.height);
     }
 
     createBird() {
         //Bird Initial Position
-        const birdX = this.scale.width / 20;
+        const birdX = this.scale.width / 30;
         const birdY = this.scale.height / 2;
         this.bird = this.physics.add.sprite(birdX, birdY, 'bird').setOrigin(0);
         this.bird.body.gravity.y = 400;
@@ -57,15 +50,18 @@ class PlayScene extends Phaser.Scene {
             // Pipes Horizontal Distance
             distanceX = i * Phaser.Math.Between(450, 500);
             // Pipes Vertical Positions
-            let upperPipeY = Phaser.Math.Between(100, 400);
-            let lowerPipeY = Phaser.Math.Between(120, 180);
+            let upperPipeY = Phaser.Math.Between(80, 380);  // Original: (100, 400)
+            let lowerPipeY = Phaser.Math.Between(140, 220); // Original: (120, 180)
             // Spawn Pipes
             let upperPipe = this.pipesGroup.create(distanceX, upperPipeY, 'pipe')
                 .setImmovable(true)
                 .setOrigin(0, 1);
+            console.log(`Pipe #${i} - \nUpper Top: ${upperPipe.body.top} - \nUpper Bottom: ${upperPipe.body.bottom}`)
             let lowerPipe = this.pipesGroup.create(distanceX, upperPipeY + lowerPipeY, 'pipe')
                 .setImmovable(true)
                 .setOrigin(0, 0);
+            console.log(`Lower Top: ${lowerPipe.body.top} - Lower Bottom: ${lowerPipe.body.bottom}`)
+
             // Save Pair
             let pair = {
                 uPipe: upperPipe,
@@ -100,14 +96,12 @@ class PlayScene extends Phaser.Scene {
                 pair.lPipe.x = newX;
                 pair.lPipe.y = newY + gap;
                 this.increaseScore();
-
             }
         })
     }
 
     birdStatus() {
         if (this.bird.getBounds().bottom >= this.scale.height || this.bird.getBounds().top <= 0) {
-            // alert("You lost! Try Again");
             this.birdRestart();
         }
     }
@@ -119,7 +113,7 @@ class PlayScene extends Phaser.Scene {
             delay: 1000,
             callback: () => {
                 this.score = 0;
-                this.scene.restart();
+                this.scene.start('GameOver');
             },
             loop: false
         })
