@@ -8,26 +8,29 @@ class PauseScene extends Phaser.Scene {
         this.exitGame = null;
     }
     preload() {
-        this.cameras.main.setBackgroundColor('rgba(0, 0, 0, 0.7)'); 
+        this.cameras.main.setBackgroundColor('rgba(0, 0, 0, 0.7)');
     }
     create() {
-        console.log("Pausing Game");
-        
+
         // Create Continue
-        this.continueGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.48, "Continue", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold'})
+        this.continueGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.48, "Continue", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold' })
             .setOrigin(0.47)
             .setInteractive({ cursor: 'pointer' });
-        
+
         this.continueGame.on('pointerdown', () => {
-            console.log("Continuing Game!");
             this.scene.stop();
             this.scene.resume('PlayScene');
         }, this);
 
- 
+        this.input.keyboard.on('keydown-ESC', () => {
+            this.scene.stop();
+            this.scene.resume('PlayScene');
+        }, this);
+
+
 
         // Create Exit
-        this.exitGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.55, " Exit", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold'})
+        this.exitGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.55, " Exit", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold' })
             .setOrigin(0.57)
             .setInteractive({ cursor: 'pointer' });
 
@@ -36,8 +39,6 @@ class PauseScene extends Phaser.Scene {
             this.scene.stop('PlayScene');
             this.scene.start('MenuScene')
         }, this);
-    }
-    update() {
 
         // Hover Continue
         this.continueGame.on('pointerover', () => {

@@ -3,7 +3,7 @@ import Phaser from "phaser";
 class PlayScene extends Phaser.Scene {
     constructor() {
         super("PlayScene");
-        this.bird = null;      
+        this.bird = null;
         this.flapVelo = 250;
         this.pipesGroup = null;
         this.pipePairs = [];
@@ -22,16 +22,18 @@ class PlayScene extends Phaser.Scene {
         this.createScore();
         this.createPauseBTT();
         this.handleInputs();
+        this.handlePause();
+
+        // Resuming Game - Can be optimized
         this.events.on('resume', () => {
             this.isPaused = false;
             console.log("PlayScene Resumed, isPaused = false");
-        });
+        });   
     }
 
     update() {
         this.pipesUpdate();
         this.birdStatus();
-        this.handlePause();
     }
 
     // SPRITE CREATION
@@ -101,7 +103,6 @@ class PlayScene extends Phaser.Scene {
         })
     }
 
-
     // BIRD STATUS
 
     birdStatus() {
@@ -146,7 +147,7 @@ class PlayScene extends Phaser.Scene {
             this.isPaused = true;
         }, this);
 
-        this.input.keyboard.once('keydown-ESC', () => {
+        this.input.keyboard.on('keydown-ESC', () => {
             this.scene.launch('PauseScene');
             this.scene.pause();
             this.isPaused = true;
@@ -162,7 +163,7 @@ class PlayScene extends Phaser.Scene {
     }
 
     // INPUTS
-    
+
     createColliders() {
         this.physics.add.collider(this.bird, this.pipesGroup, this.birdRestart, null, this);
     }
@@ -170,14 +171,13 @@ class PlayScene extends Phaser.Scene {
     flap() {
         // debugger
         this.bird.body.velocity.y = -this.flapVelo;
-        console.log(this.isPaused);
     }
 
     handleInputs() {
         //Flap
-        if(!this.isPaused){
-        this.input.on('pointerdown', this.flap, this);
-        this.input.keyboard.on('keydown-SPACE', this.flap, this);
+        if (!this.isPaused) {
+            this.input.on('pointerdown', this.flap, this);
+            this.input.keyboard.on('keydown-SPACE', this.flap, this);
         }
     }
 
