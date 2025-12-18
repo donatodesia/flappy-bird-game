@@ -28,7 +28,7 @@ class PlayScene extends Phaser.Scene {
         this.events.on('resume', () => {
             this.isPaused = false;
             console.log("PlayScene Resumed, isPaused = false");
-        });   
+        });
     }
 
     update() {
@@ -46,7 +46,7 @@ class PlayScene extends Phaser.Scene {
 
     createBird() {
         //Bird Initial Position
-        const birdX = this.scale.width / 30;
+        const birdX = this.scale.width / 15;
         const birdY = this.scale.height / 2;
         this.bird = this.physics.add.sprite(birdX, birdY, 'bird').setOrigin(0);
         this.bird.body.gravity.y = 400;
@@ -59,19 +59,17 @@ class PlayScene extends Phaser.Scene {
         let distanceX = 0;
         for (let i = 1; i <= 4; i++) {
             // Pipes Horizontal Distance
-            distanceX = i * Phaser.Math.Between(450, 500);
+            distanceX = i * Phaser.Math.Between(576, 640);
             // Pipes Vertical Positions
-            let upperPipeY = Phaser.Math.Between(80, 380);  // Original: (100, 400)
-            let lowerPipeY = Phaser.Math.Between(140, 220); // Original: (120, 180)
+            let upperPipeY = Phaser.Math.Between(110, 380);  // Original: (100, 400)
+            let lowerPipeY = Phaser.Math.Between(180, 280); // Original: (120, 180)
             // Spawn Pipes
             let upperPipe = this.pipesGroup.create(distanceX, upperPipeY, 'pipe')
                 .setImmovable(true)
                 .setOrigin(0, 1);
-            // console.log(`Pipe #${i} - \nUpper Top: ${upperPipe.body.top} - \nUpper Bottom: ${upperPipe.body.bottom}`)
             let lowerPipe = this.pipesGroup.create(distanceX, upperPipeY + lowerPipeY, 'pipe')
                 .setImmovable(true)
                 .setOrigin(0, 0);
-            // console.log(`Lower Top: ${lowerPipe.body.top} - Lower Bottom: ${lowerPipe.body.bottom}`)
 
             // Save Pair
             let pair = {
@@ -91,9 +89,9 @@ class PlayScene extends Phaser.Scene {
         this.pipePairs.forEach(pair => {
             if (pair.uPipe.x < -60) {
                 let lastX = Math.max(...this.pipePairs.map(p => p.uPipe.x));   // Find farthest Pipes
-                let newX = lastX + Phaser.Math.Between(300, 400);              // Assign Pipes new position
-                let newY = Phaser.Math.Between(100, 400);
-                let gap = Phaser.Math.Between(70, 200);
+                let newX = lastX + Phaser.Math.Between(576, 640);              // Assign Pipes new position
+                let newY = Phaser.Math.Between(110, 380);
+                let gap = Phaser.Math.Between(180, 280);
                 pair.uPipe.x = newX;
                 pair.uPipe.y = newY;
                 pair.lPipe.x = newX;
@@ -185,8 +183,30 @@ class PlayScene extends Phaser.Scene {
     // SCORE
 
     createScore() {         //Fix Score Positioning
-        this.scoreText = this.add.text(15, 15, 'Score: ' + this.score);
-        this.bestScoreText = this.add.text(15, 30, 'Best Score: ' + 'XXX');
+        // Posiciones relativas (basadas en % original: x~1.9%, y1~2.5%, y2~5%)
+        const paddingX = this.scale.width * 0.019;   // ~15/800 → 19px en 1024
+        const paddingY = this.scale.height * 0.025;  // ~15/600 → 19px en 768
+        const lineSpacing = this.scale.height * 0.040; // Espaciado dinámico (~15px)
+
+        const fontSize = Math.round(this.scale.height * 0.035);  // ~27px en 768 (escalado de ~32px original)
+        let textStyle = null;
+
+        this.scoreText = this.add.text(paddingX, paddingY, 'Score: ' + this.score,
+            textStyle = {
+                fontSize: `${25}px`,
+                fontFamily: 'Arial',
+                fill: '#FFFFFF',
+                stroke: '#000000',
+                strokeThickness: 3,
+            });
+        this.bestScoreText = this.add.text(paddingX, paddingY + lineSpacing, 'Best Score: ' + 'XXX',
+            textStyle = {
+                fontSize: `${15}px`,
+                fontFamily: 'Arial',
+                fill: '#FFFFFF',
+                stroke: '#000000',
+                strokeThickness: 3,
+            });
 
     }
 
