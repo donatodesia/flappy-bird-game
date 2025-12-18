@@ -2,12 +2,13 @@ import Phaser from 'phaser';
 import PreloadScene from './scenes/PreloadScene';
 import MenuScene from './scenes/MenuScene';
 import PlayScene from './scenes/PlayScene';
+import PauseScene from './scenes/PauseScene';
 import GameOver from './scenes/GameOver';
 
 const config = {  // WebGL (Web graphics library): Js Api for rendering 2D and 3D grapichs.
   type: Phaser.AUTO,
-  width: 1024,
-  height: 768,
+  width: 800,
+  height: 600,
   parent: 'game-container',
   scale:{
     mode: Phaser.Scale.FIT,
@@ -19,6 +20,6 @@ const config = {  // WebGL (Web graphics library): Js Api for rendering 2D and 3
       debug: true   // Debug Shows the green direction vector.
     }
   },
-  scene: [PreloadScene, MenuScene, PlayScene, GameOver]
+  scene: [PreloadScene, MenuScene, PlayScene, PauseScene, GameOver]
 }
 new Phaser.Game(config);

@@ -3,14 +3,15 @@ import Phaser from "phaser";
 class PlayScene extends Phaser.Scene {
     constructor() {
         super("PlayScene");
-        this.bird = null;
+        this.bird = null;      
+        this.flapVelo = 250;
         this.pipesGroup = null;
         this.pipePairs = [];
-        this.flapVelo = 250;
         this.velo = 200;
-
         this.score = 0;
         this.scoreText = "";
+        this.pauseButton = null;
+        this.isPaused = false;
     }
 
     create() {
@@ -19,13 +20,21 @@ class PlayScene extends Phaser.Scene {
         this.createPipes();
         this.createColliders();
         this.createScore();
+        this.createPauseBTT();
         this.handleInputs();
+        this.events.on('resume', () => {
+            this.isPaused = false;
+            console.log("PlayScene Resumed, isPaused = false");
+        });
     }
 
     update() {
         this.pipesUpdate();
         this.birdStatus();
+        this.handlePause();
     }
+
+    // SPRITE CREATION
 
     createSky() {
         //Sky
@@ -42,7 +51,7 @@ class PlayScene extends Phaser.Scene {
         this.bird.setCollideWorldBounds(true);
     }
 
-    createPipes() {            // Pipes Generation needs fixation on distance an gap
+    createPipes() {  // Pipes Generation needs fixation on distance an gap
         //Pipes               
         this.pipesGroup = this.physics.add.group();
         let distanceX = 0;
@@ -56,11 +65,11 @@ class PlayScene extends Phaser.Scene {
             let upperPipe = this.pipesGroup.create(distanceX, upperPipeY, 'pipe')
                 .setImmovable(true)
                 .setOrigin(0, 1);
-            console.log(`Pipe #${i} - \nUpper Top: ${upperPipe.body.top} - \nUpper Bottom: ${upperPipe.body.bottom}`)
+            // console.log(`Pipe #${i} - \nUpper Top: ${upperPipe.body.top} - \nUpper Bottom: ${upperPipe.body.bottom}`)
             let lowerPipe = this.pipesGroup.create(distanceX, upperPipeY + lowerPipeY, 'pipe')
                 .setImmovable(true)
                 .setOrigin(0, 0);
-            console.log(`Lower Top: ${lowerPipe.body.top} - Lower Bottom: ${lowerPipe.body.bottom}`)
+            // console.log(`Lower Top: ${lowerPipe.body.top} - Lower Bottom: ${lowerPipe.body.bottom}`)
 
             // Save Pair
             let pair = {
@@ -74,15 +83,7 @@ class PlayScene extends Phaser.Scene {
         this.pipesGroup.setVelocityX(-this.velo);
     }
 
-    createColliders() {
-        this.physics.add.collider(this.bird, this.pipesGroup, this.birdRestart, null, this);
-    }
-
-    handleInputs() {
-        //Flap
-        this.input.on('pointerdown', this.flap, this);
-        this.input.keyboard.on('keydown-SPACE', this.flap, this);
-    }
+    // PIPES STATUS
 
     pipesUpdate() {
         this.pipePairs.forEach(pair => {
@@ -100,14 +101,22 @@ class PlayScene extends Phaser.Scene {
         })
     }
 
+
+    // BIRD STATUS
+
     birdStatus() {
         if (this.bird.getBounds().bottom >= this.scale.height || this.bird.getBounds().top <= 0) {
             this.birdRestart();
         }
     }
 
-    birdRestart() {
+    birdRestart() {             // GAMEOVER
         this.physics.pause();
+
+        const bestScoreText = localStorage.getItem("bestScore");
+        if (bestScoreText) {
+            this.registry.set("bestScore", parseInt(bestScoreText));
+        }
 
         this.time.addEvent({
             delay: 1000,
@@ -119,13 +128,66 @@ class PlayScene extends Phaser.Scene {
         })
     }
 
-    flap() {
-        debugger
-        this.bird.body.velocity.y = -this.flapVelo;
+    // PAUSE
+
+    createPauseBTT() {
+        //Pause Button
+        this.pauseButton = this.add.sprite(this.scale.width * 0.95, this.scale.height * 0.05, "pauseButton")
+            .setDisplaySize(this.scale.width * 0.05, this.scale.height * 0.06)
+            .setInteractive({ cursor: 'pointer' });
     }
 
-    createScore() {
+    handlePause() {
+        // Clicking Pause
+        this.pauseButton.on('pointerdown', (pointer, localX, localY, event) => {
+            event.stopPropagation();
+            this.scene.launch('PauseScene');
+            this.scene.pause();
+            this.isPaused = true;
+        }, this);
+
+        this.input.keyboard.once('keydown-ESC', () => {
+            this.scene.launch('PauseScene');
+            this.scene.pause();
+            this.isPaused = true;
+        });
+
+        // Hover Pause
+        this.pauseButton.on('pointerover', () => {
+            this.pauseButton.setTint(0xaaaaaa);
+        });
+        this.pauseButton.on('pointerout', () => {
+            this.pauseButton.clearTint();
+        });
+    }
+
+    // INPUTS
+    
+    createColliders() {
+        this.physics.add.collider(this.bird, this.pipesGroup, this.birdRestart, null, this);
+    }
+
+    flap() {
+        // debugger
+        this.bird.body.velocity.y = -this.flapVelo;
+        console.log(this.isPaused);
+    }
+
+    handleInputs() {
+        //Flap
+        if(!this.isPaused){
+        this.input.on('pointerdown', this.flap, this);
+        this.input.keyboard.on('keydown-SPACE', this.flap, this);
+        }
+    }
+
+
+    // SCORE
+
+    createScore() {         //Fix Score Positioning
         this.scoreText = this.add.text(15, 15, 'Score: ' + this.score);
+        this.bestScoreText = this.add.text(15, 30, 'Best Score: ' + 'XXX');
+
     }
 
     increaseScore() {
