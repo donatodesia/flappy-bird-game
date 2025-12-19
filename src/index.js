@@ -14,10 +14,11 @@ const config = {  // WebGL (Web graphics library): Js Api for rendering 2D and 3
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
+  pixelArt: true,      // Makes Sprite not to lose quality
   physics: {
     default: 'arcade',
-    arcade: {       // Arcade physics plugin, manages physics simulation.
-      debug: true   // Debug Shows the green direction vector.
+    arcade: {          // Arcade physics plugin, manages physics simulation.
+      // debug: true   // Debug Shows the green direction vector.
     }
   },
   scene: [PreloadScene, MenuScene, PlayScene, PauseScene, GameOver]

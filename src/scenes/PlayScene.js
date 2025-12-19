@@ -24,6 +24,16 @@ class PlayScene extends Phaser.Scene {
         this.handleInputs();
         this.handlePause();
 
+        // Fly Animation
+
+        this.anims.create({
+            key: 'fly',                 // Frame of 16x16 plays from #8 to #15 
+            frames: this.anims.generateFrameNumbers('bird', {start:8 , end: 15}),
+            // frameRate: 8,   // 24 fps default, it will play animation consisting of 24 frames in 1 second. That means 8x3 times in 1 sec
+            repeat: -1      // Repeat -1 means infinite times    
+        });
+        this.bird.play('fly');
+
         // Resuming Game - Can be optimized
         this.events.on('resume', () => {
             this.isPaused = false;
@@ -48,7 +58,10 @@ class PlayScene extends Phaser.Scene {
         //Bird Initial Position
         const birdX = this.scale.width / 15;
         const birdY = this.scale.height / 2;
-        this.bird = this.physics.add.sprite(birdX, birdY, 'bird').setOrigin(0);
+        this.bird = this.physics.add.sprite(birdX, birdY, 'bird')
+            .setFlipX(true)
+            .setScale(2.5)
+            .setOrigin(0);
         this.bird.body.gravity.y = 400;
         this.bird.setCollideWorldBounds(true);
     }
@@ -111,6 +124,7 @@ class PlayScene extends Phaser.Scene {
 
     birdRestart() {             // GAMEOVER
         this.physics.pause();
+        this.bird.setTint(0xff0000);
 
         const bestScoreText = localStorage.getItem("bestScore");
         if (bestScoreText) {
