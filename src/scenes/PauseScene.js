@@ -13,7 +13,7 @@ class PauseScene extends Phaser.Scene {
     create() {
 
         // Create Continue
-        this.continueGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.48, "Continue", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold' })
+        this.continueGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.46, "Continue", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold' })
             .setOrigin(0.47)
             .setInteractive({ cursor: 'pointer' });
 
@@ -30,7 +30,7 @@ class PauseScene extends Phaser.Scene {
 
 
         // Create Exit
-        this.exitGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.55, " Exit", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold' })
+        this.exitGame = this.add.text(this.scale.width * 0.5, this.scale.height * 0.53, " Exit", { fontSize: '38px', fill: '#ffffff', align: 'center', fontStyle: 'bold' })
             .setOrigin(0.57)
             .setInteractive({ cursor: 'pointer' });
 

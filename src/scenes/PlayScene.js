@@ -7,9 +7,10 @@ class PlayScene extends Phaser.Scene {
         this.flapVelo = 250;
         this.pipesGroup = null;
         this.pipePairs = [];
-        this.velo = 200;
+        this.velo = 300;
         this.score = 0;
         this.scoreText = "";
+        this.bestScoreText = null;
         this.pauseButton = null;
         this.isPaused = false;
     }
@@ -28,8 +29,8 @@ class PlayScene extends Phaser.Scene {
 
         this.anims.create({
             key: 'fly',                 // Frame of 16x16 plays from #8 to #15 
-            frames: this.anims.generateFrameNumbers('bird', {start:8 , end: 15}),
-            // frameRate: 8,   // 24 fps default, it will play animation consisting of 24 frames in 1 second. That means 8x3 times in 1 sec
+            frames: this.anims.generateFrameNumbers('bird', { start: 8, end: 15 }),
+            frameRate: 16,   // 24 fps default, it will play animation consisting of 24 frames in 1 second. That means 8x3 times in 1 sec
             repeat: -1      // Repeat -1 means infinite times    
         });
         this.bird.play('fly');
@@ -37,7 +38,6 @@ class PlayScene extends Phaser.Scene {
         // Resuming Game - Can be optimized
         this.events.on('resume', () => {
             this.isPaused = false;
-            console.log("PlayScene Resumed, isPaused = false");
         });
     }
 
@@ -62,11 +62,13 @@ class PlayScene extends Phaser.Scene {
             .setFlipX(true)
             .setScale(2.5)
             .setOrigin(0);
+
+        this.bird.setBodySize(this.bird.width * 0.90, this.bird.height * 0.55);
         this.bird.body.gravity.y = 400;
         this.bird.setCollideWorldBounds(true);
     }
 
-    createPipes() {  // Pipes Generation needs fixation on distance an gap
+    createPipes() { // Pipes could be added Difficulty
         //Pipes               
         this.pipesGroup = this.physics.add.group();
         let distanceX = 0;
@@ -102,7 +104,7 @@ class PlayScene extends Phaser.Scene {
         this.pipePairs.forEach(pair => {
             if (pair.uPipe.x < -60) {
                 let lastX = Math.max(...this.pipePairs.map(p => p.uPipe.x));   // Find farthest Pipes
-                let newX = lastX + Phaser.Math.Between(576, 640);              // Assign Pipes new position
+                let newX = lastX + Phaser.Math.Between(576, 640);
                 let newY = Phaser.Math.Between(110, 380);
                 let gap = Phaser.Math.Between(180, 280);
                 pair.uPipe.x = newX;
@@ -110,6 +112,7 @@ class PlayScene extends Phaser.Scene {
                 pair.lPipe.x = newX;
                 pair.lPipe.y = newY + gap;
                 this.increaseScore();
+                this.saveBestScore();
             }
         })
     }
@@ -122,15 +125,16 @@ class PlayScene extends Phaser.Scene {
         }
     }
 
-    birdRestart() {             // GAMEOVER
+    birdRestart() {
+
+        // GAMEOVER
         this.physics.pause();
         this.bird.setTint(0xff0000);
 
-        const bestScoreText = localStorage.getItem("bestScore");
-        if (bestScoreText) {
-            this.registry.set("bestScore", parseInt(bestScoreText));
-        }
+        // debugger
+        this.saveBestScore();
 
+        // GameOver Delay
         this.time.addEvent({
             delay: 1000,
             callback: () => {
@@ -193,16 +197,21 @@ class PlayScene extends Phaser.Scene {
         }
     }
 
-
     // SCORE
 
-    createScore() {         //Fix Score Positioning
-        // Posiciones relativas (basadas en % original: x~1.9%, y1~2.5%, y2~5%)
-        const paddingX = this.scale.width * 0.019;   // ~15/800 → 19px en 1024
-        const paddingY = this.scale.height * 0.025;  // ~15/600 → 19px en 768
-        const lineSpacing = this.scale.height * 0.040; // Espaciado dinámico (~15px)
+    createScore() {
+        const paddingX = this.scale.width * 0.019;
+        const paddingY = this.scale.height * 0.025;
+        const lineSpacing = this.scale.height * 0.040;
+        // debugger
 
-        const fontSize = Math.round(this.scale.height * 0.035);  // ~27px en 768 (escalado de ~32px original)
+        // Dont know why it works now but not by: const bestScore = localStorage...
+        // Still Giving Problems.
+
+        let bestScore = 0;
+        bestScore = localStorage.getItem("bestScore");
+
+        // const fontSize = Math.round(this.scale.height * 0.035); 
         let textStyle = null;
 
         this.scoreText = this.add.text(paddingX, paddingY, 'Score: ' + this.score,
@@ -213,7 +222,7 @@ class PlayScene extends Phaser.Scene {
                 stroke: '#000000',
                 strokeThickness: 3,
             });
-        this.bestScoreText = this.add.text(paddingX, paddingY + lineSpacing, 'Best Score: ' + 'XXX',
+        this.add.text(paddingX, paddingY + lineSpacing, `Best Score: ${bestScore || 0} `,
             textStyle = {
                 fontSize: `${15}px`,
                 fontFamily: 'Arial',
@@ -221,7 +230,21 @@ class PlayScene extends Phaser.Scene {
                 stroke: '#000000',
                 strokeThickness: 3,
             });
+    }
 
+    saveBestScore() {
+        // Saving Best Score
+        const bestScoreText = localStorage.getItem("bestScore");
+        if (bestScoreText) {
+            this.registry.set("bestScore", parseInt(bestScoreText));
+        }
+
+        if (!bestScoreText || this.score > bestScoreText) {
+            localStorage.setItem('bestScore', this.score);
+        }
+        else if (bestScoreText) {
+            this.registry.set("bestScore", parseInt(bestScoreText));
+        }
     }
 
     increaseScore() {
